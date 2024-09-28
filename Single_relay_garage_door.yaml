@@ -1,0 +1,71 @@
+esphome:
+  name: garage-door-XXXX
+  friendly_name: garage-door-XXXX
+
+esp8266:
+  board: esp12e
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API (KEY is base64 32 Char min)
+api:
+  encryption:
+    key: 
+
+ota:
+  - platform: esphome
+    password: YourPassword
+
+wifi:
+  ssid: 
+  password: 
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Garage-Door-XXXX"
+    password: "YourPassword"
+
+# Enable Web server
+web_server:
+  port: 80
+
+binary_sensor:
+  - platform: gpio
+    pin: 
+      number: GPIO4 # Change to your reed switch pin.
+      mode: INPUT_PULLUP
+    filters:
+      - delayed_on: 200ms
+      - delayed_off: 200ms
+    id: door_sensor_XXXX
+    device_class: garage_door
+    
+switch:
+  - platform: gpio
+    pin: GPIO5 # Change to your relay pin.
+    inverted: false
+    id: door_relay_XXXX
+
+cover:
+  - platform: template
+    name: "Door XXXX"
+    id: "door_cover_XXXX"
+    lambda: |-
+      if (id(single_door_sensor_XXXX).state) {
+        return COVER_OPEN;
+      } else {
+        return COVER_CLOSED;
+      }
+    open_action:
+      - switch.turn_on: door_relay_XXXX
+      - delay: 0.3s
+      - switch.turn_off: door_relay_XXXX
+    close_action:
+      - switch.turn_on: door_relay_XXXX
+      - delay: 0.3s
+      - switch.turn_off: door_relay_XXXX
+    stop_action:
+      - switch.turn_on: door_relay_XXXX
+      - delay: 0.3s
+      - switch.turn_off: door_relay_XXXX
